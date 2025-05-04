@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fl-cifar10"
+version = "1.0.0"
+description = ""
+license = "Apache-2.0"
+dependencies = [
+    "flwr[simulation]>=1.17.0",
+    "flwr-datasets[vision]>=0.5.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.flwr.app]
+publisher = "ntdung"
+
+[tool.flwr.app.components]
+serverapp = "fl_torch.server_app:app"
+clientapp = "fl_torch.client_app:app"
+
+[tool.flwr.app.config]
+num-server-rounds = 20
+strategy = "fedadam"
+proximal_mu = 0.1
+partitioner = "pathological"
+fraction-fit = 1
+local-epochs = 5
+
+[tool.flwr.federations]
+default = "local-simulation"
+
+[tool.flwr.federations.local-simulation]
+options.num-supernodes = 10
+options.backend.client-resources.num-cpus = 1
+options.backend.client-resources.num-gpus = 0.25

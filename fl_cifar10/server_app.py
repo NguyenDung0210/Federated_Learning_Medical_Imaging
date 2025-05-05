@@ -5,8 +5,8 @@ from flwr.server import ServerApp, ServerAppComponents, ServerConfig
 from datasets import load_dataset
 from torch.utils.data import DataLoader
 
-from fl_torch.task import Net, get_weights, set_weights, test, get_transforms
-from fl_torch.my_strategy import CustomFedAvg, CustomFedProx, CustomFedAdam
+from fl_cifar10.task import Net, get_weights, set_weights, test, get_transforms
+from fl_cifar10.my_strategy import CustomFedAvg, CustomFedProx, CustomFedAdam
 
 
 def get_evaluate_fn(testloader, device):

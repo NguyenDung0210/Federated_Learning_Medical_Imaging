@@ -1,7 +1,7 @@
 import torch
 from flwr.client import ClientApp, NumPyClient
 from flwr.common import Context, ConfigRecord
-from fl_torch.task import Net, get_weights, load_data, set_weights, test, train
+from fl_cifar10.task import Net, get_weights, load_data, set_weights, test, train
 
 
 # Define Flower Client and client_fn

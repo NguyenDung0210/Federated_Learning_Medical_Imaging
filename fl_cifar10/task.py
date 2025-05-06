@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from flwr_datasets import FederatedDataset
 from flwr_datasets.partitioner import IidPartitioner, ShardPartitioner, PathologicalPartitioner, DirichletPartitioner
 from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, Normalize, ToTensor, RandomHorizontalFlip, RandomRotation
+from torchvision.transforms import Compose, Normalize, ToTensor
 
 
 class Net(nn.Module):
@@ -70,7 +70,7 @@ class Net(nn.Module):
 def get_transforms():
     """Return a function that apply standard transformations to images."""
 
-    pytorch_transforms = Compose([ToTensor(), RandomHorizontalFlip(), RandomRotation(10), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    pytorch_transforms = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
     def apply_transforms(batch):
         """Apply transforms to the partition from FederatedDataset."""

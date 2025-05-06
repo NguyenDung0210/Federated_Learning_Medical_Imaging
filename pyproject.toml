@@ -19,14 +19,14 @@ packages = ["."]
 publisher = "ntdung"
 
 [tool.flwr.app.components]
-serverapp = "fl_torch.server_app:app"
-clientapp = "fl_torch.client_app:app"
+serverapp = "fl_cifar10.server_app:app"
+clientapp = "fl_cifar10.client_app:app"
 
 [tool.flwr.app.config]
 num-server-rounds = 20
-strategy = "fedadam"
+strategy = "fedavg"
 proximal_mu = 0.1
-partitioner = "pathological"
+partitioner = "iid"
 fraction-fit = 1
 local-epochs = 5
 

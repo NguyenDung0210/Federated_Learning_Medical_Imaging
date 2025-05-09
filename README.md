@@ -1,5 +1,11 @@
 # fl-cifar10: A Flower / PyTorch app
 
+## Move to fl-cifar10 directory
+
+'''bash
+cd fl-cifar10
+'''
+
 ## Install dependencies and project
 
 ```bash

@@ -2,9 +2,9 @@
 
 ## Move to fl-cifar10 directory
 
-'''bash
+```bash
 cd fl-cifar10
-'''
+```
 
 ## Install dependencies and project
 

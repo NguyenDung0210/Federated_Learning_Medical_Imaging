@@ -130,7 +130,7 @@ def load_data(partition_id: int, num_partitions: int, partitioner: str, excel_pa
     trainset = BrainAgeDataset(partition_train_test["train"], transform=train_transform)
     testset = BrainAgeDataset(partition_train_test["test"], transform=test_transform)
     
-    trainloader = DataLoader(trainset, batch_size=4, shuffle=True, pin_memory=True)
+    trainloader = DataLoader(trainset, batch_size=4, shuffle=True, pin_memory=True, drop_last=True)
     testloader = DataLoader(testset, batch_size=4, pin_memory=True)
     return trainloader, testloader
 

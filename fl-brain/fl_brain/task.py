@@ -159,11 +159,10 @@ def train(net, trainloader, epochs, lr, device, strategy_name, proximal_mu):
     for _ in range(epochs):
         for batch in trainloader:
             images = batch["image"].to(device)
-            labels = batch["age"].to(device).unsqueeze(1)
+            labels = batch["age"].to(device)
 
             optimizer.zero_grad()
-            outputs = net(images).squeeze(1)
-            labels = labels.squeeze(1)
+            outputs = net(images).squeeze()
             loss = criterion(outputs, labels)
 
             if proximal_mu > 0:

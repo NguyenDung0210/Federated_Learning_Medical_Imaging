@@ -21,7 +21,7 @@ def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
 def on_fit_config(server_round: int) -> Metrics:
     """Adjusts learning rate based on current round."""
 
-    lr_initial = 0.01
+    lr_initial = 0.001
     lr_decay = 0.93  # Decay rate
     lr = lr_initial * (lr_decay ** (server_round - 1))
 

@@ -110,7 +110,7 @@ def load_data(partition_id: int, num_partitions: int, partitioner: str, excel_pa
         partitioner = DirichletPartitioner(
             num_partitions=num_partitions,
             partition_by="age_group",
-            alpha=0.3,
+            alpha=1.5,
             seed=42,
         )
     else:

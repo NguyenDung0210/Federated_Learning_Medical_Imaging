@@ -47,11 +47,6 @@ class CustomFedAvg(FedAvg):
         loss_aggregated, metrics_aggregated = super().aggregate_evaluate(server_round, results, failures)
         self.helper.save_and_log_metrics(server_round, loss_aggregated, metrics_aggregated)
         return loss_aggregated, metrics_aggregated
-
-    # def evaluate(self, server_round, parameters):
-    #     mae, metrics = super().evaluate(server_round, parameters)
-    #     self.helper.save_and_log_metrics(server_round, mae, metrics)
-    #     return mae, metrics
     
 
 class CustomFedProx(FedProx):
@@ -68,10 +63,10 @@ class CustomFedProx(FedProx):
         self.helper.save_model_if_final(parameters_aggregated, server_round, self.model_filename)
         return parameters_aggregated, metrics_aggregated
 
-    def evaluate(self, server_round, parameters):
-        mae, metrics = super().evaluate(server_round, parameters)
-        self.helper.save_and_log_metrics(server_round, mae, metrics)
-        return mae, metrics
+    def aggregate_evaluate(self, server_round, results, failures):
+        loss_aggregated, metrics_aggregated = super().aggregate_evaluate(server_round, results, failures)
+        self.helper.save_and_log_metrics(server_round, loss_aggregated, metrics_aggregated)
+        return loss_aggregated, metrics_aggregated
     
 
 class CustomFedAdam(FedAdam):
@@ -96,7 +91,7 @@ class CustomFedAdam(FedAdam):
         self.helper.save_model_if_final(parameters_aggregated, server_round, self.model_filename)
         return parameters_aggregated, metrics_aggregated
 
-    def evaluate(self, server_round, parameters):
-        mae, metrics = super().evaluate(server_round, parameters)
-        self.helper.save_and_log_metrics(server_round, mae, metrics)
-        return mae, metrics
+    def aggregate_evaluate(self, server_round, results, failures):
+        loss_aggregated, metrics_aggregated = super().aggregate_evaluate(server_round, results, failures)
+        self.helper.save_and_log_metrics(server_round, loss_aggregated, metrics_aggregated)
+        return loss_aggregated, metrics_aggregated

@@ -92,7 +92,7 @@ class BrainAgeDataset(torch.utils.data.Dataset):
 def load_data(partition_id: int, num_partitions: int, partitioner: str, excel_path):
     """Load partition MRI data."""
 
-    df = pd.read_excel(excel_path, nrows=90)
+    df = pd.read_excel(excel_path, nrows=1000)
     df["image_path"] = df["subject_id"].apply(lambda x: f"/media/sslab/PACS/sslab/nguyentiendung/data/{x}/anat/{x}_T1w.nii.gz")
     bins = [0, 20, 40, 60, 100]
     labels = ["0-20", "21-40", "41-60", "61+"]
@@ -135,8 +135,8 @@ def load_data(partition_id: int, num_partitions: int, partitioner: str, excel_pa
     trainset = BrainAgeDataset(partition_train_test["train"], transform=train_transform)
     testset = BrainAgeDataset(partition_train_test["test"], transform=test_transform)
     
-    trainloader = DataLoader(trainset, batch_size=4, shuffle=True, pin_memory=True, drop_last=True)
-    testloader = DataLoader(testset, batch_size=4, pin_memory=True)
+    trainloader = DataLoader(trainset, batch_size=8, shuffle=True, pin_memory=True, drop_last=True)
+    testloader = DataLoader(testset, batch_size=8, pin_memory=True)
     return trainloader, testloader
 
 

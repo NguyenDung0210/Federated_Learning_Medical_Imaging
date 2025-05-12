@@ -6,12 +6,12 @@ import torch.nn.functional as F
 import pandas as pd
 import numpy as np
 from PIL import Image
+from skimage.transform import resize
 import nibabel as nib
 from datasets import Dataset
-from flwr_datasets import FederatedDataset
 from flwr_datasets.partitioner import IidPartitioner, PathologicalPartitioner, DirichletPartitioner
 from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, Resize, Normalize, ToTensor, RandomHorizontalFlip, RandomRotation
+from torchvision.transforms import Compose, Normalize, ToTensor, RandomHorizontalFlip, RandomRotation
 
 
 class Net(nn.Module):
@@ -21,18 +21,21 @@ class Net(nn.Module):
         super().__init__()
         self.features = nn.Sequential(
             nn.Conv2d(3, 32, kernel_size=3, padding=1),  # 3 input channels (axial, coronal, sagittal)
+            nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(2),
             nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2),
             nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2)
         )
 
         self.regressor = nn.Sequential(
-            nn.Linear(128 * 16 * 16, 256),  # input size tùy thuộc đầu vào 128x128
+            nn.Linear(128 * 16 * 16, 256),
             nn.ReLU(),
             nn.Dropout(0.5),
             nn.Linear(256, 1)
@@ -42,13 +45,14 @@ class Net(nn.Module):
         x = self.features(x)
         x = torch.flatten(x, 1)
         x = self.regressor(x)
-        return x
+        return x.squeeze(-1)
 
 
 class BrainAgeDataset(torch.utils.data.Dataset):
     def __init__(self, hf_dataset, transform=None):
         self.dataset = hf_dataset
         self.transform = transform
+        self.target_size = (128, 128)
 
     def __len__(self):
         return len(self.dataset)
@@ -60,11 +64,11 @@ class BrainAgeDataset(torch.utils.data.Dataset):
         # Normalize toàn bộ ảnh 3D trước
         img_3d = (img_3d - img_3d.min()) / (img_3d.max() - img_3d.min() + 1e-8)
 
-        # Lấy lát cắt giữa mỗi trục (mid-slice)
+        # Lấy lát cắt giữa mỗi trục và resize
         d, h, w = img_3d.shape
-        axial = img_3d[d // 2, :, :]
-        coronal = img_3d[:, h // 2, :]
-        sagittal = img_3d[:, :, w // 2]
+        axial = resize(img_3d[d // 2, :, :], self.target_size, mode='reflect', anti_aliasing=True)
+        coronal = resize(img_3d[:, h // 2, :], self.target_size, mode='reflect', anti_aliasing=True)
+        sagittal = resize(img_3d[:, :, w // 2], self.target_size, mode='reflect', anti_aliasing=True)
 
          # Ghép lại thành ảnh RGB: [H, W, 3]
         img_rgb = np.stack([axial, coronal, sagittal], axis=-1)
@@ -88,8 +92,8 @@ class BrainAgeDataset(torch.utils.data.Dataset):
 def load_data(partition_id: int, num_partitions: int, partitioner: str, excel_path):
     """Load partition MRI data."""
 
-    df = pd.read_excel(excel_path, nrows=900)
-    df["image_path"] = df["subject_id"].apply(lambda x: f"/media/sslab/PACS/sslab/nguyentiendung/data_processed/{x}/anat/{x}_T1w_processed.nii.gz")
+    df = pd.read_excel(excel_path, nrows=90)
+    df["image_path"] = df["subject_id"].apply(lambda x: f"/media/sslab/PACS/sslab/nguyentiendung/data/{x}/anat/{x}_T1w.nii.gz")
     bins = [0, 20, 40, 60, 100]
     labels = ["0-20", "21-40", "41-60", "61+"]
     df["age_group"] = pd.cut(df["subject_age"], bins=bins, labels=labels)
@@ -117,13 +121,14 @@ def load_data(partition_id: int, num_partitions: int, partitioner: str, excel_pa
     partition_train_test = partition.train_test_split(test_size=0.2, seed=42)
 
     train_transform = Compose([
-        Resize((128, 128)), ToTensor(), 
-        RandomHorizontalFlip(), RandomRotation(10),
+        ToTensor(), 
+        RandomHorizontalFlip(), 
+        RandomRotation(10),
         Normalize([0.5] * 3, [0.5] * 3)
     ])
 
     test_transform = Compose([
-        Resize((128, 128)), ToTensor(),
+        ToTensor(),
         Normalize([0.5] * 3, [0.5] * 3)
     ])
 
@@ -162,7 +167,7 @@ def train(net, trainloader, epochs, lr, device, strategy_name, proximal_mu):
             labels = batch["age"].to(device)
 
             optimizer.zero_grad()
-            outputs = net(images).squeeze()
+            outputs = net(images)
             loss = criterion(outputs, labels)
 
             if proximal_mu > 0:

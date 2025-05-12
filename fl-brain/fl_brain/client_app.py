@@ -56,7 +56,7 @@ class FlowerClient(NumPyClient):
 
 def client_fn(context: Context):
     # Load model and data
-    data_dir = "/media/sslab/PACS/sslab/nguyentiendung/data_processed/participants.xlsx"
+    data_dir = "/media/sslab/PACS/sslab/nguyentiendung/data/participants.xlsx"
     net = Net()
     partition_id = context.node_config["partition-id"]
     num_partitions = context.node_config["num-partitions"]

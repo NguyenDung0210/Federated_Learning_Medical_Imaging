@@ -23,12 +23,12 @@ serverapp = "fl_brain.server_app:app"
 clientapp = "fl_brain.client_app:app"
 
 [tool.flwr.app.config]
-num-server-rounds = 10
+num-server-rounds = 50
 strategy = "fedavg"
 proximal_mu = 0.1
-partitioner = "pathological"
+partitioner = "dirichlet"
 fraction-fit = 1
-local-epochs = 3
+local-epochs = 10
 
 [tool.flwr.federations]
 default = "local-simulation"

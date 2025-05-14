@@ -24,7 +24,7 @@ clientapp = "fl_brain.client_app:app"
 
 [tool.flwr.app.config]
 num-server-rounds = 50
-strategy = "fedavg"
+strategy = "fedprox"
 proximal_mu = 0.1
 partitioner = "dirichlet"
 fraction-fit = 1

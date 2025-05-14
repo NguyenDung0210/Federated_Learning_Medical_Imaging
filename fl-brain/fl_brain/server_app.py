@@ -31,8 +31,6 @@ def on_fit_config(server_round: int) -> Metrics:
 def server_fn(context: Context):
     """A function that creates the components for a ServerApp."""
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
     # Read training config
     num_rounds = context.run_config["num-server-rounds"]
     fraction_fit = context.run_config["fraction-fit"]

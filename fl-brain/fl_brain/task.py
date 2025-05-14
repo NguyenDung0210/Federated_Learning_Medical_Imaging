@@ -24,28 +24,36 @@ class Net(nn.Module):
             nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(2),
+
             nn.Conv2d(32, 64, kernel_size=3, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2),
+
             nn.Conv2d(64, 128, kernel_size=3, padding=1),
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.MaxPool2d(2)
+            nn.MaxPool2d(2),
+
+            nn.Conv2d(128, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.AdaptiveAvgPool2d((1, 1))
         )
 
         self.regressor = nn.Sequential(
-            nn.Linear(128 * 16 * 16, 256),
+            nn.Flatten(),
+            nn.Dropout(0.5),
+            nn.Linear(256, 128),
             nn.ReLU(),
             nn.Dropout(0.5),
-            nn.Linear(256, 1)
+            nn.Linear(128, 1)
         )
 
     def forward(self, x):
         x = self.features(x)
-        x = torch.flatten(x, 1)
         x = self.regressor(x)
-        return x.squeeze(-1)
+        return x.view(-1)
 
 
 class BrainAgeDataset(torch.utils.data.Dataset):
@@ -164,7 +172,7 @@ def train(net, trainloader, epochs, lr, device, strategy_name, proximal_mu):
     for _ in range(epochs):
         for batch in trainloader:
             images = batch["image"].to(device)
-            labels = batch["age"].to(device)
+            labels = batch["age"].to(device).squeeze()
 
             optimizer.zero_grad()
             outputs = net(images)

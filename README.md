@@ -23,6 +23,7 @@ A two-stage federated learning (FL) system for:
   - Model output (regression for age prediction)
 
 ## Project Structure
+```
 .
 ├── fl-cifar10/ # Stage 1: CIFAR-10 implementation
 │ ├── server_app.py
@@ -36,16 +37,17 @@ A two-stage federated learning (FL) system for:
 │ ├── task.py
 │ ├── my_strategy.py
 │ └── pyproject.toml
+```
 
 ## Quick Start
-### For CIFAR-10 (Stage 1)
+### For CIFAR-10
 ```bash
 cd fl-cifar10
 pip install -e .  # Install dependencies
 flwr run .       # Launch simulation
 ```
 
-### For Brain MRI (Stage 2)
+### For Brain MRI
 ```bash
 cd fl-brain
 pip install -e .  # Install dependencies
@@ -54,10 +56,12 @@ flwr run .       # Launch simulation
 
 ## Configuration
 Modify pyproject.toml to control experiments:
+```
 strategy = "fedavg"       # "fedavg"/"fedprox"/"fedadam"
 partitioner = "dirichlet" # "iid"/"shard"/"pathological"/"dirichlet"
 fraction-fit = 1
 local-epochs = 10
+```
 
 ## Key Features
 ✅ Single-machine FL simulation

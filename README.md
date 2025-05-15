@@ -43,12 +43,14 @@ A two-stage federated learning (FL) system for:
 cd fl-cifar10
 pip install -e .  # Install dependencies
 flwr run .       # Launch simulation
+```
 
 ### For Brain MRI (Stage 2)
 ```bash
 cd fl-brain
 pip install -e .  # Install dependencies
 flwr run .       # Launch simulation
+```
 
 ## Configuration
 Modify pyproject.toml to control experiments:

@@ -1,3 +1,5 @@
+.gitignore
+
 global_model/
 
 # Byte-compiled / optimized / DLL files

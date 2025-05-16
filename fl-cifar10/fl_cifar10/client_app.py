@@ -2,7 +2,7 @@ import torch
 from flwr.client import ClientApp, NumPyClient
 from flwr.common import Context, ConfigRecord
 from fl_cifar10.task import Net, get_weights, load_data, set_weights, test, train
-
+from fl_cifar10.socket_emit import emit_message
 
 # Define Flower Client and client_fn
 class FlowerClient(NumPyClient):
@@ -20,8 +20,11 @@ class FlowerClient(NumPyClient):
         if "fit_metrics" not in self.client_state.config_records:
             self.client_state.config_records["fit_metrics"] = ConfigRecord()
 
+        emit_message(f"[Client {self.partition_id}] Initialized with local dataset.")
+
     def fit(self, parameters, config):
         set_weights(self.net, parameters)
+        emit_message(f"[Client {self.partition_id}] Starting local training...")
         train_loss = train(
             self.net,
             self.trainloader,
@@ -31,6 +34,8 @@ class FlowerClient(NumPyClient):
             self.strategy_name,
             self.proximal_mu,
         )
+
+        emit_message(f"[Client {self.partition_id}] Finished local training. Loss = {train_loss:.4f}")
 
         # Append to persistent state the `train_loss` just obtained
         fit_metrics = self.client_state.config_records["fit_metrics"]
@@ -50,6 +55,7 @@ class FlowerClient(NumPyClient):
     def evaluate(self, parameters, config):
         set_weights(self.net, parameters)
         loss, accuracy = test(self.net, self.valloader, self.device)
+        emit_message(f"[Client {self.partition_id}] Local evaluation: Loss = {loss:.4f}, Accuracy = {accuracy:.4f}")
         return loss, len(self.valloader.dataset), {"accuracy": accuracy}
 
 

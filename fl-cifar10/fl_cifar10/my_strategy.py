@@ -2,6 +2,7 @@ from flwr.common import FitRes, Parameters, parameters_to_ndarrays
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.strategy import FedAvg, FedProx, FedAdam
 from fl_cifar10.task import Net, set_weights
+from fl_cifar10.socket_emit import emit_message
 
 import torch
 import json
@@ -27,6 +28,10 @@ class BaseCustomStrategy:
         self.results_to_save[server_round] = result
         with open(self.json_path, "w") as f:
             json.dump(self.results_to_save, f, indent=4)
+        accuracy = metrics.get("accuracy", "N/A")
+        emit_message(
+            f"[Server] Round {server_round} completed. Aggregated Loss = {loss:.4f}, Accuracy = {accuracy:.4f}"
+        )
 
 
 class CustomFedAvg(FedAvg):

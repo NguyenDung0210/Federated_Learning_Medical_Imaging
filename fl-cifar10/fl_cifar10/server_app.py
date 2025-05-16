@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 
 from fl_cifar10.task import Net, get_weights, set_weights, test, get_transforms
 from fl_cifar10.my_strategy import CustomFedAvg, CustomFedProx, CustomFedAdam
-
+from fl_cifar10.socket_emit import emit_message
 
 def get_evaluate_fn(testloader, device):
     """Return a callback that evaluates the global model."""
@@ -52,6 +52,11 @@ def server_fn(context: Context):
     # Read from config
     num_rounds = context.run_config["num-server-rounds"]
     fraction_fit = context.run_config["fraction-fit"]
+    strategy_name = context.run_config["strategy"]
+    partitioner = context.run_config["partitioner"]
+
+    emit_message(f"[Server] Starting FL training with {num_rounds} rounds and {fraction_fit * 100:.0f}% client participation.")
+    emit_message(f"[Server] Using strategy: {strategy_name}")
 
     # Initialize model parameters
     ndarrays = get_weights(Net())
@@ -61,10 +66,8 @@ def server_fn(context: Context):
     testset = load_dataset("uoft-cs/cifar10")["test"]
     testloader = DataLoader(testset.with_transform(get_transforms()), batch_size=32, shuffle=False)
     
-    # Define and configure the strategy
-    strategy = context.run_config["strategy"]
-    partitioner = context.run_config["partitioner"]
-    if strategy == "fedavg":
+    # Strategy selection
+    if strategy_name == "fedavg":
         strategy = CustomFedAvg(
             num_rounds=num_rounds,
             partitioner=partitioner,
@@ -76,7 +79,7 @@ def server_fn(context: Context):
             on_fit_config_fn=on_fit_config,
             evaluate_fn=get_evaluate_fn(testloader, device=device),
         )
-    elif strategy == "fedprox":
+    elif strategy_name == "fedprox":
         strategy = CustomFedProx(
             num_rounds=num_rounds,
             partitioner=partitioner,
@@ -89,7 +92,7 @@ def server_fn(context: Context):
             on_fit_config_fn=on_fit_config,
             evaluate_fn=get_evaluate_fn(testloader, device=device),
         )
-    elif strategy == "fedadam":
+    elif strategy_name == "fedadam":
         strategy = CustomFedAdam(
             num_rounds=num_rounds,
             partitioner=partitioner,

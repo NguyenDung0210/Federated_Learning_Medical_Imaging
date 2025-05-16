@@ -13,7 +13,7 @@ def index():
 def handle_chat(msg):
     sender_id = request.sid
     print(f"[Chat] {sender_id} send:", msg)
-    # Gửi lại cho tất cả clients kèm theo ID của người gửi
+    # Send back to every clients with ID of sender
     socketio.emit("chat_message", {"msg": msg, "sender_id": sender_id})
 
 @socketio.on("fl_message")

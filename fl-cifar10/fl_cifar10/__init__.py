@@ -1,1 +1,1 @@
-"""fl-torch: A Flower / PyTorch app."""
+"""fl-cifar10: A Flower / PyTorch app."""

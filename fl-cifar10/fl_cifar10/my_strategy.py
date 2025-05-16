@@ -28,7 +28,7 @@ class BaseCustomStrategy:
         self.results_to_save[server_round] = result
         with open(self.json_path, "w") as f:
             json.dump(self.results_to_save, f, indent=4)
-        accuracy = metrics.get("accuracy", "N/A")
+        accuracy = metrics.get("cen_accuracy", "N/A")
         emit_message(
             f"[Server] Round {server_round} completed. Aggregated Loss = {loss:.4f}, Accuracy = {accuracy:.4f}"
         )

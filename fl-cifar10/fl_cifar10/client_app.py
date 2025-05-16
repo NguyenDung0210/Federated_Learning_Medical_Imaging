@@ -8,6 +8,7 @@ from fl_cifar10.socket_emit import emit_message
 class FlowerClient(NumPyClient):
     def __init__(self, net, trainloader, valloader, local_epochs, strategy_name, context: Context):
         self.client_state = context.state
+        self.partition_id = context.node_config["partition-id"]
         self.net = net
         self.trainloader = trainloader
         self.valloader = valloader

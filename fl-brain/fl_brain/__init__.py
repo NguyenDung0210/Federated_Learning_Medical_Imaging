@@ -1,1 +1,1 @@
-"""fl-torch: A Flower / PyTorch app."""
+"""fl-brain: A Flower / PyTorch app."""

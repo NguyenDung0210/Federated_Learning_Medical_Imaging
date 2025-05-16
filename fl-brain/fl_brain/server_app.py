@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 
 from fl_brain.task import Net, get_weights, set_weights, test
 from fl_brain.my_strategy import CustomFedAvg, CustomFedProx, CustomFedAdam
+from fl_brain.socket_emit import emit_message
 
 
 def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
@@ -37,6 +38,9 @@ def server_fn(context: Context):
     strategy_name = context.run_config["strategy"]
     partitioner = context.run_config["partitioner"]
 
+    emit_message(f"[Server] Starting FL training with {num_rounds} rounds and {fraction_fit * 100:.0f}% client participation.")
+    emit_message(f"[Server] Using strategy: {strategy_name}")
+    
     # Initial model parameters
     ndarrays = get_weights(Net())
     parameters = ndarrays_to_parameters(ndarrays)

@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+  <title>Federated Learning Chat</title>
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    #chat-box { height: 500px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; background: #f5f5f5; }
+    .message-item { display: flex; margin-bottom: 10px; }
+    .avatar { width: 35px; height: 35px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .message-content { max-width: 70%; }
+    .sender-name { font-size: 0.8em; font-weight: bold; margin-bottom: 2px; }
+    .message-bubble { padding: 10px; border-radius: 10px; color: white; }
+  </style>
+</head>
+<body>
+  <h2>🌐 Federated Learning - Group Chat</h2>
+  <div id="chat-box">
+    <ul id="messages" style="list-style-type: none; padding-left: 0;"></ul>
+  </div>
+
+  <div id="input-area" style="width: 80%; margin: 10px auto; display: flex;">
+    <input id="chat-input" type="text" placeholder="Type your message..." style="flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+    <button onclick="sendChat()" style="margin-left: 10px; padding: 10px 15px; border: none; background: #4dd0e1; color: white; border-radius: 5px;">Send</button>
+  </div>
+
+  <script>
+    const socket = io();
+    let mySocketId = null;
+
+    socket.on("connect", () => {
+      mySocketId = socket.id;
+    });
+
+    const messages = document.getElementById('messages');
+    const chatBox = document.getElementById('chat-box');
+    const senderColors = {};
+
+    function getRandomColor() {
+      const colors = ['#ff6b6b', '#4dd0e1', '#81c784', '#fbc02d', '#ba68c8', '#9575cd'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function createMessageItem(sender, text, isUser = false) {
+      if (!senderColors[sender]) {
+        senderColors[sender] = getRandomColor();
+      }
+
+      const item = document.createElement('li');
+      item.className = 'message-item';
+      item.style.justifyContent = isUser ? 'flex-end' : 'flex-start';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.style.backgroundColor = senderColors[sender];
+      avatar.textContent = sender[0];
+      avatar.style.margin = isUser ? '0 0 0 10px' : '0 10px 0 0';
+
+      const content = document.createElement('div');
+      content.className = 'message-content';
+      content.style.textAlign = isUser ? 'right' : 'left';
+
+      const name = document.createElement('div');
+      name.className = 'sender-name';
+      name.textContent = sender;
+
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      bubble.style.backgroundColor = senderColors[sender];
+      bubble.textContent = text;
+
+      content.appendChild(name);
+      content.appendChild(bubble);
+
+      if (isUser) {
+        item.appendChild(content);
+        item.appendChild(avatar);
+      } else {
+        item.appendChild(avatar);
+        item.appendChild(content);
+      }
+
+      messages.appendChild(item);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendChat() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (text) {
+        socket.emit('chat_message', text);
+        input.value = '';
+      }
+    }
+
+    document.getElementById("chat-input").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        sendChat();
+      }
+    });
+
+    socket.on('fl_message', function (msg) {
+      const parsed = msg.match(/^\[(.*?)\]\s?(.*)/);
+      const sender = parsed ? parsed[1] : 'System';
+      const text = parsed ? parsed[2] : msg;
+      createMessageItem(sender, text, false);
+    });
+
+    socket.on('chat_message', function (data) {
+      const isMe = data.sender_id === mySocketId;
+      const senderName = isMe ? 'You' : 'User';
+      createMessageItem(senderName, data.msg, isMe);
+    });
+  </script>
+</body>
+</html>

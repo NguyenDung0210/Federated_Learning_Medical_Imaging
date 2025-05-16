@@ -12,20 +12,20 @@ def index():
 @socketio.on("chat_message")
 def handle_chat(msg):
     sender_id = request.sid
-    print(f"[Chat] {sender_id} gửi:", msg)
+    print(f"[Chat] {sender_id} send:", msg)
     # Gửi lại cho tất cả clients kèm theo ID của người gửi
     socketio.emit("chat_message", {"msg": msg, "sender_id": sender_id})
 
 @socketio.on("fl_message")
 def handle_fl_message(msg):
-    print("[FL] Nhận message:", msg)
+    print("[FL] Got message:", msg)
     socketio.emit("fl_message", msg)
 
 @app.route("/message", methods=["POST"])
 def receive_message():
     data = request.get_json()
     msg = data.get("msg", "")
-    print("[HTTP] Nhận từ Flower:", msg)
+    print("[HTTP] Got from Flower:", msg)
     socketio.emit("fl_message", msg)
     return jsonify({"status": "ok"}), 200
 

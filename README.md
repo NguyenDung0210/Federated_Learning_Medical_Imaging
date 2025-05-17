@@ -98,7 +98,9 @@ Edit pyproject.toml and set:
 - num-server-rounds
 - strategy = "fedavg" / "fedprox" / "fedadam"
 - partitioner = "iid" / "shard" / "pathological" / "dirichlet"
-- fraction-fit, local-epochs, options.num-supernodes
+- fraction-fit
+- local-epochs
+- options.num-supernodes
 
 Then run:
 ``` bash
@@ -110,12 +112,14 @@ flwr run .
 cd fl-brain
 ```
 
-Edit pyproject.toml and set:
+Edit `pyproject.toml` and set:
 
 - num-server-rounds
 - strategy = "fedavg" / "fedprox" / "fedadam"
 - partitioner = "iid" / "shard" / "pathological" / "dirichlet"
-- fraction-fit, local-epochs, options.num-supernodes
+- fraction-fit
+- local-epochs
+- options.num-supernodes
 
 Then run:
 ``` bash
@@ -123,7 +127,7 @@ flwr run .
 ```
 
 ### 4. Run with GPU
-Make sure PyTorch with CUDA is installed. I`n pyproject.toml, set:
+Make sure PyTorch with CUDA is installed. In `pyproject.toml`, set:
 ```toml
 options.backend.client-resources.num-cpus = 1
 options.backend.client-resources.num-gpus = 0.25

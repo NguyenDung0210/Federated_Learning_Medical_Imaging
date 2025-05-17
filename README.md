@@ -129,8 +129,8 @@ flwr run .
 ### 4. Run with GPU
 Make sure PyTorch with CUDA is installed. In `pyproject.toml`, set:
 ```toml
-options.backend.client-resources.num-cpus = 1
-options.backend.client-resources.num-gpus = 0.25
+options.backend.client-resources.num-cpus = 1       # optional
+options.backend.client-resources.num-gpus = 0.25      #optional
 ```
 
 ### 5. Launch Web Interface (optional)

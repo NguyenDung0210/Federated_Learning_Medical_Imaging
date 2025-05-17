@@ -1,73 +1,137 @@
-# Federated Learning System with Flower & PyTorch
+# Research and Development of a Federated Learning System for MRI Data
 
-A two-stage federated learning (FL) system for:
-1. **CIFAR-10 classification** (simulated environment)
-2. **Brain MRI age prediction** (medical imaging application)
+This project develops and evaluates a **Federated Learning (FL)** system using both benchmark and medical imaging data. The FL system is built with **Flower**, supports real-time logging via **Flask + SocketIO**, and is simulated on a single machine.
 
-## System Overview
-- **Framework**: Flower (flwr) + PyTorch
-- **Execution**: Local simulation on a single machine
-- **Configuration**: Centralized control via `pyproject.toml`
+## 📌 Project Summary
 
-### Stage 1: CIFAR-10 Experiment
-- Simulates 10 virtual clients with partitioned CIFAR-10 data
-- Includes:
-  - Custom FL strategies (`my_strategy.py`)
-  - Dataset handling (`task.py`)
-  - Server/client logic (`server_app.py`, `client_app.py`)
+- **Stage 1: CIFAR-10 Benchmark**
+  - Test FL system with various data partitioning methods and aggregation strategies.
+  - Evaluate flexibility and performance in different federated setups.
 
-### Stage 2: Brain MRI Application
-- Simulates 3 virtual clients with brain MRI data
-- Reuses Stage 1 infrastructure with modified:
-  - Data loading (MRI-specific preprocessing)
-  - Model output (regression for age prediction)
+- **Stage 2: Brain Age Prediction**
+  - Apply the system to a real-world medical task using 3D MRI data.
+  - Predict the brain age from MRI slices using federated training.
 
-## Project Structure
+## 🔑 Key Features
+
+- Support for multiple FL strategies: `FedAvg`, `FedProx`, `FedAdam`
+- Partitioning options: `iid`, `shard`, `pathological`, `dirichlet`
+- Integration of real-time logging using Flask and Socket.IO
+- Modular structure for easy switching between CIFAR-10 and MRI
+- GPU support for client training
+
+## 🧠 Dataset Description
+
+The brain imaging dataset used in this project includes:
+
+- **Training set**: 1,000 T1-weighted 3D MRI scans  
+- **Test set**: 500 T1-weighted 3D MRI scans  
+- **Resolution**: 130×130×130 voxels  
+- **Preprocessing**: No skull-stripping; both brain tissue and skull are visible  
+- **Usage**: Internal research only; not publicly available  
+
+This dataset is used to simulate a federated learning environment, where data is split across multiple clients.
+
+## 📁 Project Structure
 ```
 .
-├── fl-cifar10/ # Stage 1: CIFAR-10 implementation
-│ ├── server_app.py
-│ ├── client_app.py
-│ ├── task.py
-│ ├── my_strategy.py
-│ └── pyproject.toml
-├── fl-brain/ # Stage 2: MRI implementation
-│ ├── server_app.py
-│ ├── client_app.py
-│ ├── task.py
-│ ├── my_strategy.py
-│ └── pyproject.toml
+├── fl-brain/
+│ ├── brain_age_prediction.ipynb
+│ ├── fl_brain/
+│ │ ├── init.py
+│ │ ├── client_app.py
+│ │ ├── my_strategy.py
+│ │ ├── server_app.py
+│ │ ├── socket_emit.py
+│ │ └── task.py
+│ ├── global_model_final_fedprox_dirichlet.pt
+│ ├── pyproject.toml
+│ ├── results_fedprox_dirichlet.json
+│ ├── test.ipynb
+│ └── visualize.ipynb
+├── fl-cifar10/
+│ ├── evaluate.ipynb
+│ ├── fl_cifar10/
+│ │ ├── init.py
+│ │ ├── client_app.py
+│ │ ├── my_strategy.py
+│ │ ├── server_app.py
+│ │ ├── socket_emit.py
+│ │ └── task.py
+│ ├── partitioner_visualized.ipynb
+│ ├── pyproject.toml
+│ ├── results/
+│ └── visualize_result.ipynb
+└── web/
+│ ├── app.py
+│ ├── static/
+│ │ └── style.css
+│ ├── templates/
+│ │ └── index.html
+├── requirements.txt
+├── README.md
 ```
 
-## Quick Start
-### For CIFAR-10
+## 🚀 How to Run
+
+### 1. Clone the repository
+
+```bash
+git clone <repo-url>
+cd <repo-directory>
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run Federated Learning System
+➤ CIFAR-10 Experiments
 ```bash
 cd fl-cifar10
-pip install -e .  # Install dependencies
-flwr run .       # Launch simulation
 ```
 
-### For Brain MRI
+Edit pyproject.toml and set:
+
+- num-server-rounds
+- strategy = "fedavg" / "fedprox" / "fedadam"
+- partitioner = "iid" / "shard" / "pathological" / "dirichlet"
+- fraction-fit, local-epochs, options.num-supernodes
+
+Then run:
+``` bash
+flwr run .
+```
+
+➤ Brain MRI Experiments
 ```bash
 cd fl-brain
-pip install -e .  # Install dependencies
-flwr run .       # Launch simulation
 ```
 
-## Configuration
-Modify pyproject.toml to control experiments:
+Edit pyproject.toml and set:
+
+- num-server-rounds
+- strategy = "fedavg" / "fedprox" / "fedadam"
+- partitioner = "iid" / "shard" / "pathological" / "dirichlet"
+- fraction-fit, local-epochs, options.num-supernodes
+
+Then run:
+``` bash
+flwr run .
 ```
-strategy = "fedavg"       # "fedavg"/"fedprox"/"fedadam"
-partitioner = "dirichlet" # "iid"/"shard"/"pathological"/"dirichlet"
-fraction-fit = 1
-local-epochs = 10
+
+### 4. Run with GPU
+Make sure PyTorch with CUDA is installed. I`n pyproject.toml, set:
+```toml
+options.backend.client-resources.num-cpus = 1
+options.backend.client-resources.num-gpus = 0.25
 ```
 
-## Key Features
-✅ Single-machine FL simulation
-
-✅ Reusable infrastructure across stages
-
-✅ Configuration-driven experiments
-
-✅ Custom strategies support
+### 5. Launch Web Interface (optional)
+```bash
+cd web
+python app.py
+```
+Open your browser at: http://localhost:5000
